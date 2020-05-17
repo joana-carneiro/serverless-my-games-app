@@ -16,7 +16,7 @@ import {
   Container
 } from 'semantic-ui-react'
 
-import { createGame, deleteGame, getGames, patchGame } from '../api/games-api'
+import { createGame, deleteGame, getGames, patchGame, getUploadUrl, uploadFile } from '../api/games-api'
 import Auth from '../auth/Auth'
 import { Game } from '../types/Game'
 import {UploadState} from '../components/EditGame'
@@ -76,8 +76,18 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
       const dueDate = this.calculateDueDate()
       const newGame = await createGame(this.props.auth.getIdToken(), {
         name: this.state.newGameName,
-        dueDate
+        desc: this.state.newGameDesc
       })
+
+      if(newGame)
+      {
+        this.setUploadState(UploadState.FetchingPresignedUrl)
+        const uploadUrl = await getUploadUrl(this.props.auth.getIdToken(), newGame.gameId)
+
+        this.setUploadState(UploadState.UploadingFile)
+        await uploadFile(uploadUrl, this.state.newGameImage)
+      }
+
       this.setState({
         games: [...this.state.games, newGame],
         newGameName: ''
@@ -92,24 +102,6 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
       await deleteGame(this.props.auth.getIdToken(), gameId)
       this.setState({
         games: this.state.games.filter(game => game.gameId != gameId)
-      })
-    } catch {
-      alert('Game deletion failed')
-    }
-  }
-
-  onGameCheck = async (pos: number) => {
-    try {
-      const game = this.state.games[pos]
-      await patchGame(this.props.auth.getIdToken(), game.gameId, {
-        name: game.name,
-        dueDate: game.dueDate,
-        done: !game.done
-      })
-      this.setState({
-        games: update(this.state.games, {
-          [pos]: { done: { $set: !game.done } }
-        })
       })
     } catch {
       alert('Game deletion failed')
@@ -140,26 +132,42 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
 
   renderCreateGameInput() {
     return (
-      <Grid.Row>
-        <Grid.Column width={16}>
-          <Input
-            action={{
-              color: 'teal',
-              labelPosition: 'left',
-              icon: 'add',
-              content: 'Add A New Amazing Game',
-              onClick: this.onGameCreate
-            }}
-            fluid
-            actionPosition="left"
-            placeholder="Be epic..."
-            onChange={this.handleNameChange}
-          />
-        </Grid.Column>
-        <Grid.Column width={16}>
-          <Divider />
-        </Grid.Column>
-      </Grid.Row>
+      <div>
+
+        <Divider horizontal><h2>Insert New Game</h2></Divider>
+
+        <Form onSubmit={this.handleSubmit}>
+          <Form.Field>
+            <label>Title</label>
+            <input
+              type="text"
+              placeholder="Enter Title..."
+              onChange={this.handleNameChange}
+            />
+          </Form.Field>
+          <Form.Field>
+            <label>Desc</label>
+            <input
+              type="text"
+              placeholder="Enter Description..."
+              onChange={this.handleDescChange}
+            />
+          </Form.Field>
+          <Form.Field>
+            <label>File</label>
+            <input
+              type="file"
+              accept="image/*"
+              name="filePath"
+              placeholder="Image to upload"
+              onChange={this.handleFileChange}
+            />
+          </Form.Field>
+
+          {this.renderButton()}
+
+        </Form>
+      </div>
     )
   }
 
@@ -247,5 +255,12 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
         </Button>
       </div>
     )
+  }
+
+  setUploadState(uploadState: UploadState)
+  {
+    this.setState({
+      uploadState
+    })
   }
 }
