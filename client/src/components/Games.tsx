@@ -18,70 +18,70 @@ import { createGame, deleteGame, getGames, patchGame } from '../api/games-api'
 import Auth from '../auth/Auth'
 import { Game } from '../types/Game'
 
-interface TodosProps {
+interface GamesProps {
   auth: Auth
   history: History
 }
 
-interface TodosState {
-  todos: Game[]
-  newTodoName: string
-  loadingTodos: boolean
+interface GamesState {
+  games: Game[]
+  newGameName: string
+  loadingGames: boolean
 }
 
-export class Todos extends React.PureComponent<TodosProps, TodosState> {
-  state: TodosState = {
-    todos: [],
-    newTodoName: '',
-    loadingTodos: true
+export class Games extends React.PureComponent<GamesProps, GamesState> {
+  state: GamesState = {
+    games: [],
+    newGameName: '',
+    loadingGames: true
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ newTodoName: event.target.value })
+    this.setState({ newGameName: event.target.value })
   }
 
   onEditButtonClick = (gameId: string) => {
-    this.props.history.push(`/todos/${gameId}/edit`)
+    this.props.history.push(`/games/${gameId}/edit`)
   }
 
-  onTodoCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
+  onGameCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
     try {
       const dueDate = this.calculateDueDate()
-      const newTodo = await createGame(this.props.auth.getIdToken(), {
-        name: this.state.newTodoName,
+      const newGame = await createGame(this.props.auth.getIdToken(), {
+        name: this.state.newGameName,
         dueDate
       })
       this.setState({
-        todos: [...this.state.todos, newTodo],
-        newTodoName: ''
+        games: [...this.state.games, newGame],
+        newGameName: ''
       })
     } catch {
       alert('Game creation failed')
     }
   }
 
-  onTodoDelete = async (gameId: string) => {
+  onGameDelete = async (gameId: string) => {
     try {
       await deleteGame(this.props.auth.getIdToken(), gameId)
       this.setState({
-        todos: this.state.todos.filter(todo => todo.gameId != gameId)
+        games: this.state.games.filter(game => game.gameId != gameId)
       })
     } catch {
       alert('Game deletion failed')
     }
   }
 
-  onTodoCheck = async (pos: number) => {
+  onGameCheck = async (pos: number) => {
     try {
-      const todo = this.state.todos[pos]
-      await patchGame(this.props.auth.getIdToken(), todo.gameId, {
-        name: todo.name,
-        dueDate: todo.dueDate,
-        done: !todo.done
+      const game = this.state.games[pos]
+      await patchGame(this.props.auth.getIdToken(), game.gameId, {
+        name: game.name,
+        dueDate: game.dueDate,
+        done: !game.done
       })
       this.setState({
-        todos: update(this.state.todos, {
-          [pos]: { done: { $set: !todo.done } }
+        games: update(this.state.games, {
+          [pos]: { done: { $set: !game.done } }
         })
       })
     } catch {
@@ -91,13 +91,13 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 
   async componentDidMount() {
     try {
-      const todos = await getGames(this.props.auth.getIdToken())
+      const games = await getGames(this.props.auth.getIdToken())
       this.setState({
-        todos,
-        loadingTodos: false
+        games,
+        loadingGames: false
       })
     } catch (e) {
-      alert(`Failed to fetch todos: ${e.message}`)
+      alert(`Failed to fetch games: ${e.message}`)
     }
   }
 
@@ -106,14 +106,14 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
       <div>
         <Header as="h1">My Board Games</Header>
 
-        {this.renderCreateTodoInput()}
+        {this.renderCreateGameInput()}
 
-        {this.renderTodos()}
+        {this.renderGames()}
       </div>
     )
   }
 
-  renderCreateTodoInput() {
+  renderCreateGameInput() {
     return (
       <Grid.Row>
         <Grid.Column width={16}>
@@ -123,7 +123,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
               labelPosition: 'left',
               icon: 'add',
               content: 'Add A New Amazing Game',
-              onClick: this.onTodoCreate
+              onClick: this.onGameCreate
             }}
             fluid
             actionPosition="left"
@@ -138,12 +138,12 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     )
   }
 
-  renderTodos() {
-    if (this.state.loadingTodos) {
+  renderGames() {
+    if (this.state.loadingGames) {
       return this.renderLoading()
     }
 
-    return this.renderTodosList()
+    return this.renderGamesList()
   }
 
   renderLoading() {
@@ -156,29 +156,29 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     )
   }
 
-  renderTodosList() {
+  renderGamesList() {
     return (
       <Grid padded>
-        {this.state.todos.map((todo, pos) => {
+        {this.state.games.map((game, pos) => {
           return (
-            <Grid.Row key={todo.gameId}>
+            <Grid.Row key={game.gameId}>
               <Grid.Column width={1} verticalAlign="middle">
                 <Checkbox
-                  onChange={() => this.onTodoCheck(pos)}
-                  checked={todo.done}
+                  onChange={() => this.onGameCheck(pos)}
+                  checked={game.done}
                 />
               </Grid.Column>
               <Grid.Column width={10} verticalAlign="middle">
-                {todo.name}
+                {game.name}
               </Grid.Column>
               <Grid.Column width={3} floated="right">
-                {todo.dueDate}
+                {game.dueDate}
               </Grid.Column>
               <Grid.Column width={1} floated="right">
                 <Button
                   icon
                   color="blue"
-                  onClick={() => this.onEditButtonClick(todo.gameId)}
+                  onClick={() => this.onEditButtonClick(game.gameId)}
                 >
                   <Icon name="pencil" />
                 </Button>
@@ -187,13 +187,13 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
                 <Button
                   icon
                   color="red"
-                  onClick={() => this.onTodoDelete(todo.gameId)}
+                  onClick={() => this.onGameDelete(game.gameId)}
                 >
                   <Icon name="delete" />
                 </Button>
               </Grid.Column>
-              {todo.attachmentUrl && (
-                <Image src={todo.attachmentUrl} size="small" wrapped />
+              {game.attachmentUrl && (
+                <Image src={game.attachmentUrl} size="small" wrapped />
               )}
               <Grid.Column width={16}>
                 <Divider />
