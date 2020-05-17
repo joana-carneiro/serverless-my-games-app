@@ -1,4 +1,4 @@
-export interface TodoItem {
+export interface GameItem {
   userId: string
   gameId: string
   createdAt: string

@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import 'source-map-support/register'
 import {createLogger} from "../../utils/logger"
-import {getTodo} from "../../businessLogic/manageTodos"
+import {getGame} from "../../businessLogic/manageTodos"
 
 
 const logger = createLogger('getGames')
@@ -10,7 +10,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
     logger.info('Processing event: ', event)
 
-    const items = await getTodo(event)
+    const items = await getGame(event)
 
     return {
         statusCode: 200,

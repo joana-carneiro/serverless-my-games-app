@@ -1,10 +1,10 @@
 import { APIGatewayProxyEvent } from 'aws-lambda'
 import 'source-map-support/register'
-import { parseUserId } from '../auth/utils'
+import { getUserId } from "../lambda/utils";
 import * as uuid from 'uuid'
-import { CreateTodoRequest } from '../requests/CreateTodoRequest'
+import { CreateGameRequest } from '../requests/CreateGameRequest'
 import AppTodos from "../dataLayer/appTodos";
-import {UpdateTodoRequest} from "../requests/UpdateTodoRequest";
+import {UpdateGameRequest} from "../requests/UpdateGameRequest";
 import * as AWS from "aws-sdk";
 import * as AWSXRay from 'aws-xray-sdk';
 
@@ -17,22 +17,22 @@ const s3 = new XAWS.S3({
 const bucketName = process.env.ATTACHMENTS_S3_BUCKET
 const urlExpiration = process.env.SIGNED_URL_EXPIRATION
 
-//retrieve all the to dos for a given user
-export async function getTodo(event: APIGatewayProxyEvent) {
+//retrieve all the games for a given user
+export async function getGame(event: APIGatewayProxyEvent) {
 
     const userId = getUserId(event)
-    const result = await applicationData.getUserTodos(userId)
+    const result = await applicationData.getUserGames(userId)
 
     return result;
 
 }
 
 //create a new item for a given user
-export async function createTodo(event: APIGatewayProxyEvent) {
+export async function createGame(event: APIGatewayProxyEvent) {
 
     const itemId = uuid.v4()
 
-    const newTodo: CreateTodoRequest = JSON.parse(event.body)
+    const newTodo: CreateGameRequest = JSON.parse(event.body)
     const userId = getUserId(event)
 
     const item = {
@@ -43,19 +43,19 @@ export async function createTodo(event: APIGatewayProxyEvent) {
         ...newTodo
     }
 
-    await applicationData.createTodo(item)
+    await applicationData.createGame(item)
 
     return item;
 
 }
 
 //delete a specific item
-export async function deleteTodo(event: APIGatewayProxyEvent) {
+export async function deleteGame(event: APIGatewayProxyEvent) {
 
     const gameId = event.pathParameters.gameId
     const userId = getUserId(event)
 
-    const toBeDeleted = await applicationData.getUserSpecificTodo(userId, gameId)
+    const toBeDeleted = await applicationData.getUserSpecificGame(userId, gameId)
 
     if(toBeDeleted.size <=0) {
         throw  new Error("Invalid Item");
@@ -67,13 +67,13 @@ export async function deleteTodo(event: APIGatewayProxyEvent) {
 }
 
 //update a given item that belong to a specific user
-export async function updateTodo(event: APIGatewayProxyEvent) {
+export async function updateGame(event: APIGatewayProxyEvent) {
 
     const gameId = event.pathParameters.gameId
     const userId = getUserId(event)
-    const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
+    const updatedTodo: UpdateGameRequest = JSON.parse(event.body)
 
-    await applicationData.updateTodo(userId, gameId, updatedTodo)
+    await applicationData.updateGame(userId, gameId, updatedTodo)
 
 
 }
@@ -96,14 +96,4 @@ export async function uploadImage(event: APIGatewayProxyEvent) {
 
     return s3.getSignedUrl('putObject', createSignedUrlRequest);
 
-}
-
-//retrieve a user id from the event passed information
-export function getUserId(event: APIGatewayProxyEvent): string {
-
-    const authorization = event.headers.Authorization
-    const split = authorization.split(' ')
-    const jwtToken = split[1]
-
-    return parseUserId(jwtToken);
 }

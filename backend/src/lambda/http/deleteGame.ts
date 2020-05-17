@@ -1,7 +1,7 @@
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import {createLogger} from "../../utils/logger";
-import {deleteTodo} from "../../businessLogic/manageTodos"
+import {deleteGame} from "../../businessLogic/manageTodos"
 
 const logger = createLogger('deleteGame')
 
@@ -10,7 +10,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   logger.info('Processing event: ', event)
 
   try {
-    await deleteTodo(event)
+    await deleteGame(event)
 
     return {
       statusCode: 202,

@@ -14,7 +14,7 @@ export default class AppTodos {
     ) {}
 
     //retrieve all the todos for a given user id
-    async getUserTodos(userId) {
+    async getUserGames(userId) {
 
         const result = await this.docClient.query({
             TableName: this.todosTable,
@@ -29,7 +29,7 @@ export default class AppTodos {
     }
 
     //return a spefic item with a given id for a specific user
-    async getUserSpecificTodo(userId, gameId) {
+    async getUserSpecificGame(userId, gameId) {
 
         const result = await this.docClient.get({
             TableName: this.todosTable,
@@ -55,7 +55,7 @@ export default class AppTodos {
     }
 
     //create a new item for the user
-    async createTodo(item) {
+    async createGame(item) {
 
         await this.docClient.put({
             TableName: this.todosTable,
@@ -64,7 +64,7 @@ export default class AppTodos {
     }
 
     //update a given item that belongs to a given user
-    async updateTodo(userId,gameId,updatedTodo) {
+    async updateGame(userId, gameId, updatedTodo) {
 
         await this.docClient.update({
             TableName: this.todosTable,
