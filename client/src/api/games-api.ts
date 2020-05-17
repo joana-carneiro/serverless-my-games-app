@@ -1,10 +1,10 @@
 import { apiEndpoint } from '../config'
 import { Game } from '../types/Game';
-import { CreateTodoRequest } from '../types/CreateTodoRequest';
+import { CreateGameRequest } from '../types/CreateGameRequest';
 import Axios from 'axios'
-import { UpdateTodoRequest } from '../types/UpdateTodoRequest';
+import { UpdateGameRequest } from '../types/UpdateGameRequest';
 
-export async function getTodos(idToken: string): Promise<Game[]> {
+export async function getGames(idToken: string): Promise<Game[]> {
   console.log('Fetching games')
 
   const response = await Axios.get(`${apiEndpoint}/games`, {
@@ -17,9 +17,9 @@ export async function getTodos(idToken: string): Promise<Game[]> {
   return response.data.items
 }
 
-export async function createTodo(
+export async function createGame(
   idToken: string,
-  newTodo: CreateTodoRequest
+  newTodo: CreateGameRequest
 ): Promise<Game> {
   const response = await Axios.post(`${apiEndpoint}/games`,  JSON.stringify(newTodo), {
     headers: {
@@ -30,10 +30,10 @@ export async function createTodo(
   return response.data.item
 }
 
-export async function patchTodo(
+export async function patchGame(
   idToken: string,
   gameId: string,
-  updatedTodo: UpdateTodoRequest
+  updatedTodo: UpdateGameRequest
 ): Promise<void> {
   await Axios.patch(`${apiEndpoint}/games/${gameId}`, JSON.stringify(updatedTodo), {
     headers: {
@@ -43,7 +43,7 @@ export async function patchTodo(
   })
 }
 
-export async function deleteTodo(
+export async function deleteGame(
   idToken: string,
   gameId: string
 ): Promise<void> {

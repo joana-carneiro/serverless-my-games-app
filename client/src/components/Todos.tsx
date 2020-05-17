@@ -14,7 +14,7 @@ import {
   Loader
 } from 'semantic-ui-react'
 
-import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/games-api'
+import { createGame, deleteGame, getGames, patchGame } from '../api/games-api'
 import Auth from '../auth/Auth'
 import { Game } from '../types/Game'
 
@@ -47,7 +47,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   onTodoCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
     try {
       const dueDate = this.calculateDueDate()
-      const newTodo = await createTodo(this.props.auth.getIdToken(), {
+      const newTodo = await createGame(this.props.auth.getIdToken(), {
         name: this.state.newTodoName,
         dueDate
       })
@@ -62,7 +62,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 
   onTodoDelete = async (gameId: string) => {
     try {
-      await deleteTodo(this.props.auth.getIdToken(), gameId)
+      await deleteGame(this.props.auth.getIdToken(), gameId)
       this.setState({
         todos: this.state.todos.filter(todo => todo.gameId != gameId)
       })
@@ -74,7 +74,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   onTodoCheck = async (pos: number) => {
     try {
       const todo = this.state.todos[pos]
-      await patchTodo(this.props.auth.getIdToken(), todo.gameId, {
+      await patchGame(this.props.auth.getIdToken(), todo.gameId, {
         name: todo.name,
         dueDate: todo.dueDate,
         done: !todo.done
@@ -91,7 +91,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 
   async componentDidMount() {
     try {
-      const todos = await getTodos(this.props.auth.getIdToken())
+      const todos = await getGames(this.props.auth.getIdToken())
       this.setState({
         todos,
         loadingTodos: false
