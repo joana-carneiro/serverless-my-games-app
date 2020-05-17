@@ -7,6 +7,7 @@ import { EditGame } from './components/EditGame'
 import { LogIn } from './components/LogIn'
 import { NotFound } from './components/NotFound'
 import { Games } from './components/Games'
+import Header from "semantic-ui-react/dist/commonjs/elements/Header";
 
 export interface AppProps {}
 
@@ -38,6 +39,9 @@ export default class App extends Component<AppProps, AppState> {
       <div>
         <Segment style={{ padding: '8em 0em' }} vertical>
           <Grid container stackable verticalAlign="middle">
+            <Grid.Row>
+              <Header as="h1">My Board Games App</Header>
+            </Grid.Row>
             <Grid.Row>
               <Grid.Column width={16}>
                 <Router history={this.props.history}>

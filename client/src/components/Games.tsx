@@ -4,14 +4,16 @@ import update from 'immutability-helper'
 import * as React from 'react'
 import {
   Button,
-  Checkbox,
   Divider,
   Grid,
   Header,
   Icon,
   Input,
   Image,
-  Loader
+  Loader,
+  Segment,
+  Form,
+  Container
 } from 'semantic-ui-react'
 
 import { createGame, deleteGame, getGames, patchGame } from '../api/games-api'
@@ -158,50 +160,47 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
 
   renderGamesList() {
     return (
-      <Grid padded>
-        {this.state.games.map((game, pos) => {
-          return (
-            <Grid.Row key={game.gameId}>
-              <Grid.Column width={1} verticalAlign="middle">
-                <Checkbox
-                  onChange={() => this.onGameCheck(pos)}
-                  checked={game.done}
-                />
-              </Grid.Column>
-              <Grid.Column width={10} verticalAlign="middle">
-                {game.name}
-              </Grid.Column>
-              <Grid.Column width={3} floated="right">
-                {game.dueDate}
-              </Grid.Column>
-              <Grid.Column width={1} floated="right">
-                <Button
-                  icon
-                  color="blue"
-                  onClick={() => this.onEditButtonClick(game.gameId)}
-                >
-                  <Icon name="pencil" />
-                </Button>
-              </Grid.Column>
-              <Grid.Column width={1} floated="right">
-                <Button
-                  icon
-                  color="red"
-                  onClick={() => this.onGameDelete(game.gameId)}
-                >
-                  <Icon name="delete" />
-                </Button>
-              </Grid.Column>
-              {game.attachmentUrl && (
-                <Image src={game.attachmentUrl} size="small" wrapped />
-              )}
-              <Grid.Column width={16}>
-                <Divider />
-              </Grid.Column>
-            </Grid.Row>
+      <Container>
+        <Divider horizontal><h2>My Board Games</h2></Divider>
+
+        <Grid>
+          {this.state.games.map((game, pos) => {
+            return (
+              <Grid.Row centered={true} key={game.gameId}>
+                <Grid.Column width={8}>
+                  <Segment>
+                    <Image src={game.attachmentUrl} />
+                  </Segment>
+                </Grid.Column>
+                <Grid.Column width={4}>
+                  <Segment>
+                    {game.name}
+                  </Segment>
+                  <Segment>
+                    {game.desc}
+                  </Segment>
+                  <Segment>
+                    last modified<br></br>
+                    {game.createdAt}
+                  </Segment>
+                </Grid.Column>
+                <Grid.Column width={2}>
+                  <Segment>
+                    <Button icon color="blue" onClick={() => this.onEditButtonClick(game.gameId)} >
+                      <Icon name="pencil" />
+                    </Button>
+                  </Segment>
+                  <Segment>
+                    <Button icon color="red" onClick={() => this.onGameDelete(game.gameId)}>
+                      <Icon name="delete" />
+                    </Button>
+                  </Segment>
+                </Grid.Column>
+              </Grid.Row>
           )
         })}
-      </Grid>
+        </Grid>
+      </Container>
     )
   }
 
