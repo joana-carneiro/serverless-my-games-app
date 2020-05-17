@@ -104,7 +104,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   render() {
     return (
       <div>
-        <Header as="h1">TODOs</Header>
+        <Header as="h1">My Board Games</Header>
 
         {this.renderCreateTodoInput()}
 
@@ -122,12 +122,12 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
               color: 'teal',
               labelPosition: 'left',
               icon: 'add',
-              content: 'New task',
+              content: 'Add A New Amazing Game',
               onClick: this.onTodoCreate
             }}
             fluid
             actionPosition="left"
-            placeholder="To change the world..."
+            placeholder="Be epic..."
             onChange={this.handleNameChange}
           />
         </Grid.Column>
