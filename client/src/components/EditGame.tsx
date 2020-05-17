@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Form, Button } from 'semantic-ui-react'
 import Auth from '../auth/Auth'
-import { getUploadUrl, uploadFile } from '../api/games-api'
+import { getUploadUrl, uploadFile, patchGame } from '../api/games-api'
 
 export enum UploadState {
   NoUpload,
@@ -19,8 +19,10 @@ interface EditGameProps {
 }
 
 interface EditGameState {
-  file: any
+  name: any
   uploadState: UploadState
+  desc: string
+  file: any
 }
 
 export class EditGame extends React.PureComponent<
@@ -28,16 +30,27 @@ export class EditGame extends React.PureComponent<
   EditGameState
 > {
   state: EditGameState = {
+    name: '',
+    desc: '',
     file: undefined,
     uploadState: UploadState.NoUpload
   }
 
-  handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (!files) return
+  handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const _name = event.target.value
+    if (!_name) return
 
     this.setState({
-      file: files[0]
+      name: _name
+    })
+  }
+
+  handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const _desc = event.target.value
+    if (!_desc) return
+
+    this.setState({
+      desc: _desc
     })
   }
 
@@ -73,10 +86,26 @@ export class EditGame extends React.PureComponent<
   render() {
     return (
       <div>
-        <h1>Upload new image</h1>
+        <h1>Update Game</h1>
 
         <Form onSubmit={this.handleSubmit}>
           <Form.Field>
+            <label>Name</label>
+            <input
+              type="text"
+              placeholder="Enter Game Name..."
+              onChange={this.handleNameChange}
+            />
+          </Form.Field>
+          <Form.Field>
+            <label>Desc</label>
+            <input
+              type="text"
+              placeholder="Enter Description..."
+              onChange={this.handleDescriptionChange}
+            />
+          </Form.Field>
+          {/* <Form.Field>
             <label>File</label>
             <input
               type="file"
@@ -84,7 +113,7 @@ export class EditGame extends React.PureComponent<
               placeholder="Image to upload"
               onChange={this.handleFileChange}
             />
-          </Form.Field>
+          </Form.Field> */}
 
           {this.renderButton()}
         </Form>
@@ -102,7 +131,7 @@ export class EditGame extends React.PureComponent<
           loading={this.state.uploadState !== UploadState.NoUpload}
           type="submit"
         >
-          Upload
+          Submit
         </Button>
       </div>
     )

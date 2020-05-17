@@ -138,10 +138,10 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
 
         <Form onSubmit={this.handleSubmit}>
           <Form.Field>
-            <label>Title</label>
+            <label>Name</label>
             <input
               type="text"
-              placeholder="Enter Title..."
+              placeholder="Enter Name..."
               onChange={this.handleNameChange}
             />
           </Form.Field>
