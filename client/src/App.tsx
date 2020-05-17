@@ -7,6 +7,7 @@ import { EditGame } from './components/EditGame'
 import { LogIn } from './components/LogIn'
 import { NotFound } from './components/NotFound'
 import { Games } from './components/Games'
+import Header from "semantic-ui-react/dist/commonjs/elements/Header";
 
 export interface AppProps {}
 

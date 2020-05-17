@@ -2,7 +2,6 @@ export interface Game {
   gameId: string
   createdAt: string
   name: string
-  dueDate: string
-  done: boolean
+  desc: string
   attachmentUrl?: string
 }

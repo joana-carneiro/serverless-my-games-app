@@ -4,19 +4,21 @@ import update from 'immutability-helper'
 import * as React from 'react'
 import {
   Button,
-  Checkbox,
   Divider,
   Grid,
-  Header,
   Icon,
   Input,
   Image,
-  Loader
+  Loader,
+  Segment,
+  Form,
+  Container
 } from 'semantic-ui-react'
 
-import { createGame, deleteGame, getGames, patchGame } from '../api/games-api'
+import { createGame, deleteGame, getGames, patchGame, getUploadUrl, uploadFile } from '../api/games-api'
 import Auth from '../auth/Auth'
 import { Game } from '../types/Game'
+import {UploadState} from '../components/EditGame'
 
 interface GamesProps {
   auth: Auth
@@ -26,37 +28,82 @@ interface GamesProps {
 interface GamesState {
   games: Game[]
   newGameName: string
+  newGameDesc: string
+  newGameImage: any
   loadingGames: boolean
+  uploadState: UploadState
 }
 
 export class Games extends React.PureComponent<GamesProps, GamesState> {
   state: GamesState = {
     games: [],
     newGameName: '',
-    loadingGames: true
+    newGameDesc: '',
+    newGameImage: undefined,
+    loadingGames: true,
+    uploadState: UploadState.NoUpload
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ newGameName: event.target.value })
   }
 
+  handleDescChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ newGameDesc: event.target.value })
+  }
+
+  handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+
+    if (!files) return
+    this.setState({
+      newGameImage: files[0]
+    })
+  }
+
+
+  handleSubmit = (event:React.SyntheticEvent) =>{
+    this.onGameCreate(event)
+  }
+
   onEditButtonClick = (gameId: string) => {
     this.props.history.push(`/games/${gameId}/edit`)
   }
 
-  onGameCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
+  onGameCreate = async (event: React.SyntheticEvent) => {
     try {
-      const dueDate = this.calculateDueDate()
+
+      console.log("onGameCreate")
+
       const newGame = await createGame(this.props.auth.getIdToken(), {
         name: this.state.newGameName,
-        dueDate
+        desc: this.state.newGameDesc
       })
+
+      if(newGame && this.state.newGameImage)
+      {
+        this.setUploadState(UploadState.FetchingPresignedUrl)
+        const uploadUrl = await getUploadUrl(this.props.auth.getIdToken(), newGame.gameId)
+
+        this.setUploadState(UploadState.UploadingFile)
+        await uploadFile(uploadUrl, this.state.newGameImage)
+
+      }
+
       this.setState({
         games: [...this.state.games, newGame],
-        newGameName: ''
+        newGameName: '',
+        newGameDesc: '',
+        newGameImage: '',
+        uploadState: UploadState.NoUpload
       })
+
+      this.renderCreateGameInput()
+
+      alert('Game Successfully Created!!!')
+
     } catch {
-      alert('Game creation failed')
+      alert('Game Failed to be Created!!!')
     }
   }
 
@@ -65,24 +112,6 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
       await deleteGame(this.props.auth.getIdToken(), gameId)
       this.setState({
         games: this.state.games.filter(game => game.gameId != gameId)
-      })
-    } catch {
-      alert('Game deletion failed')
-    }
-  }
-
-  onGameCheck = async (pos: number) => {
-    try {
-      const game = this.state.games[pos]
-      await patchGame(this.props.auth.getIdToken(), game.gameId, {
-        name: game.name,
-        dueDate: game.dueDate,
-        done: !game.done
-      })
-      this.setState({
-        games: update(this.state.games, {
-          [pos]: { done: { $set: !game.done } }
-        })
       })
     } catch {
       alert('Game deletion failed')
@@ -104,8 +133,6 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
   render() {
     return (
       <div>
-        <Header as="h1">My Board Games</Header>
-
         {this.renderCreateGameInput()}
 
         {this.renderGames()}
@@ -115,26 +142,42 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
 
   renderCreateGameInput() {
     return (
-      <Grid.Row>
-        <Grid.Column width={16}>
-          <Input
-            action={{
-              color: 'teal',
-              labelPosition: 'left',
-              icon: 'add',
-              content: 'Add A New Amazing Game',
-              onClick: this.onGameCreate
-            }}
-            fluid
-            actionPosition="left"
-            placeholder="Be epic..."
-            onChange={this.handleNameChange}
-          />
-        </Grid.Column>
-        <Grid.Column width={16}>
-          <Divider />
-        </Grid.Column>
-      </Grid.Row>
+      <div>
+
+        <Divider horizontal><h2>Insert New Game</h2></Divider>
+
+        <Form onSubmit={this.handleSubmit}>
+          <Form.Field>
+            <label>Name</label>
+            <input
+              type="text"
+              placeholder="Enter Name..."
+              onChange={this.handleNameChange}
+            />
+          </Form.Field>
+          <Form.Field>
+            <label>Desc</label>
+            <input
+              type="text"
+              placeholder="Enter Description..."
+              onChange={this.handleDescChange}
+            />
+          </Form.Field>
+          <Form.Field>
+            <label>Image</label>
+            <input
+              type="file"
+              accept="image/*"
+              name="filePath"
+              placeholder="Image to upload"
+              onChange={this.handleFileChange}
+            />
+          </Form.Field>
+
+          {this.renderButton()}
+
+        </Form>
+      </div>
     )
   }
 
@@ -158,57 +201,69 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
 
   renderGamesList() {
     return (
-      <Grid padded>
-        {this.state.games.map((game, pos) => {
-          return (
-            <Grid.Row key={game.gameId}>
-              <Grid.Column width={1} verticalAlign="middle">
-                <Checkbox
-                  onChange={() => this.onGameCheck(pos)}
-                  checked={game.done}
-                />
-              </Grid.Column>
-              <Grid.Column width={10} verticalAlign="middle">
-                {game.name}
-              </Grid.Column>
-              <Grid.Column width={3} floated="right">
-                {game.dueDate}
-              </Grid.Column>
-              <Grid.Column width={1} floated="right">
-                <Button
-                  icon
-                  color="blue"
-                  onClick={() => this.onEditButtonClick(game.gameId)}
-                >
-                  <Icon name="pencil" />
-                </Button>
-              </Grid.Column>
-              <Grid.Column width={1} floated="right">
-                <Button
-                  icon
-                  color="red"
-                  onClick={() => this.onGameDelete(game.gameId)}
-                >
-                  <Icon name="delete" />
-                </Button>
-              </Grid.Column>
-              {game.attachmentUrl && (
-                <Image src={game.attachmentUrl} size="small" wrapped />
-              )}
-              <Grid.Column width={16}>
-                <Divider />
-              </Grid.Column>
-            </Grid.Row>
+      <Container>
+        <Divider horizontal><h2>My Board Games</h2></Divider>
+
+        <Grid>
+          {this.state.games.map((game, pos) => {
+            return (
+              <Grid.Row centered={true} key={game.gameId}>
+                <Grid.Column width={8}>
+                  <Segment>
+                    <Image src={game.attachmentUrl} />
+                  </Segment>
+                </Grid.Column>
+                <Grid.Column width={4}>
+                  <Segment>
+                    {game.name}
+                  </Segment>
+                  <Segment>
+                    {game.desc}
+                  </Segment>
+                  <Segment>
+                    last modified<br></br>
+                    {game.createdAt}
+                  </Segment>
+                </Grid.Column>
+                <Grid.Column width={2}>
+                  <Segment>
+                    <Button icon color="blue" onClick={() => this.onEditButtonClick(game.gameId)} >
+                      <Icon name="pencil" />
+                    </Button>
+                  </Segment>
+                  <Segment>
+                    <Button icon color="red" onClick={() => this.onGameDelete(game.gameId)}>
+                      <Icon name="delete" />
+                    </Button>
+                  </Segment>
+                </Grid.Column>
+              </Grid.Row>
           )
         })}
-      </Grid>
+        </Grid>
+      </Container>
     )
   }
 
-  calculateDueDate(): string {
-    const date = new Date()
-    date.setDate(date.getDate() + 7)
+  renderButton() {
+    return (
+      <div>
+        {this.state.uploadState === UploadState.FetchingPresignedUrl && <p>Uploading image metadata</p>}
+        {this.state.uploadState === UploadState.UploadingFile && <p>Uploading file</p>}
+        <Button
+          loading={this.state.uploadState !== UploadState.NoUpload}
+          type="submit"
+        >
+          Submit
+        </Button>
+      </div>
+    )
+  }
 
-    return dateFormat(date, 'yyyy-mm-dd') as string
+  setUploadState(uploadState: UploadState)
+  {
+    this.setState({
+      uploadState
+    })
   }
 }

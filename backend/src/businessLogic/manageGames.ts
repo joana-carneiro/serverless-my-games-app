@@ -39,7 +39,6 @@ export async function createGame(event: APIGatewayProxyEvent) {
         gameId: itemId,
         userId: userId,
         createdAt: new Date(Date.now()).toISOString(),
-        done: false,
         ...newGame
     }
 
