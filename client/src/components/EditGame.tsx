@@ -20,7 +20,6 @@ interface EditGameProps {
 
 interface EditGameState {
   name: any
-  uploadState: UploadState
   desc: string
   file: any
 }
@@ -33,7 +32,6 @@ export class EditGame extends React.PureComponent<
     name: '',
     desc: '',
     file: undefined,
-    uploadState: UploadState.NoUpload
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,29 +62,12 @@ export class EditGame extends React.PureComponent<
         desc: this.state.desc
       })
 
-      if(this.state.file)
-      {
-        this.setUploadState(UploadState.FetchingPresignedUrl)
-        const uploadUrl = await getUploadUrl(this.props.auth.getIdToken(), this.props.match.params.gameId)
-
-        this.setUploadState(UploadState.UploadingFile)
-        await uploadFile(uploadUrl, this.state.file)
-
-      }
-
-      alert('Game Successfully Created!')
+      alert('Game Successfully Updated!')
     } catch (e) {
-      alert('Could not upload image: ' + e.message)
-    } finally {
-      this.setUploadState(UploadState.NoUpload)
+      alert('Failed to update Game: ' + e.message)
     }
   }
 
-  setUploadState(uploadState: UploadState) {
-    this.setState({
-      uploadState
-    })
-  }
 
   render() {
     return (
@@ -121,10 +102,7 @@ export class EditGame extends React.PureComponent<
 
     return (
       <div>
-        {this.state.uploadState === UploadState.FetchingPresignedUrl && <p>Uploading image metadata</p>}
-        {this.state.uploadState === UploadState.UploadingFile && <p>Uploading file</p>}
         <Button
-          loading={this.state.uploadState !== UploadState.NoUpload}
           type="submit"
         >
           Submit

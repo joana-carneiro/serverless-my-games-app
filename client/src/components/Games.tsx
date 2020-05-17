@@ -6,7 +6,6 @@ import {
   Button,
   Divider,
   Grid,
-  Header,
   Icon,
   Input,
   Image,
@@ -98,10 +97,10 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
 
       this.renderCreateGameInput()
 
-      alert('Game created successfully!!')
+      alert('Game Successfully Created!!!')
 
     } catch {
-      alert('Game creation failed!!')
+      alert('Game Failed to be Created!!!')
     }
   }
 
@@ -241,13 +240,6 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
         </Grid>
       </Container>
     )
-  }
-
-  calculateDueDate(): string {
-    const date = new Date()
-    date.setDate(date.getDate() + 7)
-
-    return dateFormat(date, 'yyyy-mm-dd') as string
   }
 
   renderButton() {
