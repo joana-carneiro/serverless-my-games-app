@@ -19,6 +19,7 @@ import {
 import { createGame, deleteGame, getGames, patchGame } from '../api/games-api'
 import Auth from '../auth/Auth'
 import { Game } from '../types/Game'
+import {UploadState} from '../components/EditGame'
 
 interface GamesProps {
   auth: Auth
@@ -28,25 +29,49 @@ interface GamesProps {
 interface GamesState {
   games: Game[]
   newGameName: string
+  newGameDesc: string
+  newGameImage: any
   loadingGames: boolean
+  uploadState: UploadState
 }
 
 export class Games extends React.PureComponent<GamesProps, GamesState> {
   state: GamesState = {
     games: [],
     newGameName: '',
-    loadingGames: true
+    newGameDesc: '',
+    newGameImage: undefined,
+    loadingGames: true,
+    uploadState: UploadState.NoUpload
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ newGameName: event.target.value })
   }
 
+  handleDescChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ newGameDesc: event.target.value })
+  }
+
+  handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (!files) return
+
+    this.setState({
+      newGameImage: files[0]
+    })
+  }
+
+
+  handleSubmit = (event:React.SyntheticEvent) =>{
+    this.onGameCreate(event)
+  }
+
   onEditButtonClick = (gameId: string) => {
     this.props.history.push(`/games/${gameId}/edit`)
   }
 
-  onGameCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
+  onGameCreate = async (event: React.SyntheticEvent) => {
     try {
       const dueDate = this.calculateDueDate()
       const newGame = await createGame(this.props.auth.getIdToken(), {
@@ -106,8 +131,6 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
   render() {
     return (
       <div>
-        <Header as="h1">My Board Games</Header>
-
         {this.renderCreateGameInput()}
 
         {this.renderGames()}
@@ -209,5 +232,20 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
     date.setDate(date.getDate() + 7)
 
     return dateFormat(date, 'yyyy-mm-dd') as string
+  }
+
+  renderButton() {
+    return (
+      <div>
+        {this.state.uploadState === UploadState.FetchingPresignedUrl && <p>Uploading image metadata</p>}
+        {this.state.uploadState === UploadState.UploadingFile && <p>Uploading file</p>}
+        <Button
+          loading={this.state.uploadState !== UploadState.NoUpload}
+          type="submit"
+        >
+          Submit
+        </Button>
+      </div>
+    )
   }
 }

@@ -3,7 +3,7 @@ import { Form, Button } from 'semantic-ui-react'
 import Auth from '../auth/Auth'
 import { getUploadUrl, uploadFile } from '../api/games-api'
 
-enum UploadState {
+export enum UploadState {
   NoUpload,
   FetchingPresignedUrl,
   UploadingFile,
