@@ -1,26 +1,24 @@
 import 'source-map-support/register'
-import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
-
+import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 import {createLogger} from "../../utils/logger";
-import {uploadImage} from "../../businessLogic/manageTodos"
+import {createGame} from "../../businessLogic/manageGames"
 
-
-const logger = createLogger('generateUploadURL')
+const logger = createLogger('createGame')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
   logger.info('Processing event: ', event)
 
-  const signedUrl = await uploadImage(event)
+  const item = await createGame(event)
 
   return {
-    statusCode: 202,
+    statusCode: 201,
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Credentials': true
     },
     body: JSON.stringify({
-      uploadUrl: signedUrl
+      item
     })
-  };
+  }
 }
