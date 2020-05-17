@@ -73,7 +73,7 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
 
   onGameCreate = async (event: React.SyntheticEvent) => {
     try {
-      const dueDate = this.calculateDueDate()
+
       const newGame = await createGame(this.props.auth.getIdToken(), {
         name: this.state.newGameName,
         desc: this.state.newGameDesc
@@ -90,10 +90,18 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
 
       this.setState({
         games: [...this.state.games, newGame],
-        newGameName: ''
+        newGameName: '',
+        newGameDesc: '',
+        newGameImage: '',
+        uploadState: UploadState.NoUpload
       })
+
+      this.renderCreateGameInput()
+
+      alert('Game created successfully!!')
+
     } catch {
-      alert('Game creation failed')
+      alert('Game creation failed!!')
     }
   }
 
@@ -154,7 +162,7 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
             />
           </Form.Field>
           <Form.Field>
-            <label>File</label>
+            <label>Image</label>
             <input
               type="file"
               accept="image/*"

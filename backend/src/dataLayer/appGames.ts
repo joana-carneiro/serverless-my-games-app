@@ -72,16 +72,14 @@ export default class AppGames {
                 gameId,
                 userId
             },
-            UpdateExpression: 'set #name = :n, #dueDate = :due, #done = :d',
+            UpdateExpression: 'set #name = :n, #desc = :d',
             ExpressionAttributeValues: {
                 ':n': updatedGame.name,
-                ':due': updatedGame.dueDate,
-                ':d': updatedGame.done
+                ':d': updatedGame.desc,
             },
             ExpressionAttributeNames: {
                 '#name': 'name',
-                '#dueDate': 'dueDate',
-                '#done': 'done'
+                '#desc': 'desc',
             }
         }).promise();
     }

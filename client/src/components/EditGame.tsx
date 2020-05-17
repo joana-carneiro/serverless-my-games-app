@@ -58,20 +58,25 @@ export class EditGame extends React.PureComponent<
     event.preventDefault()
 
     try {
-      if (!this.state.file) {
-        alert('File should be selected')
-        return
+
+      const newGame = await patchGame(this.props.auth.getIdToken(), this.props.match.params.gameId, {
+        name: this.state.name,
+        desc: this.state.desc
+      })
+
+      if(this.state.file)
+      {
+        this.setUploadState(UploadState.FetchingPresignedUrl)
+        const uploadUrl = await getUploadUrl(this.props.auth.getIdToken(), this.props.match.params.gameId)
+
+        this.setUploadState(UploadState.UploadingFile)
+        await uploadFile(uploadUrl, this.state.file)
+
       }
 
-      this.setUploadState(UploadState.FetchingPresignedUrl)
-      const uploadUrl = await getUploadUrl(this.props.auth.getIdToken(), this.props.match.params.gameId)
-
-      this.setUploadState(UploadState.UploadingFile)
-      await uploadFile(uploadUrl, this.state.file)
-
-      alert('File was uploaded!')
+      alert('Game Successfully Created!')
     } catch (e) {
-      alert('Could not upload a file: ' + e.message)
+      alert('Could not upload image: ' + e.message)
     } finally {
       this.setUploadState(UploadState.NoUpload)
     }
