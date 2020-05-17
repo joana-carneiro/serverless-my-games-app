@@ -5,20 +5,20 @@ import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 
 const XAWS = AWSXRay.captureAWS(AWS);
 
-export default class AppTodos {
+export default class AppGames {
 
     constructor(
         private readonly docClient : DocumentClient = new XAWS.DynamoDB.DocumentClient(),
-        private readonly todosTable = process.env.GAMES_TABLE,
-        private readonly todosIdIndex = process.env.GAMES_ID_INDEX
+        private readonly gamesTable = process.env.GAMES_TABLE,
+        private readonly gamesIdIndex = process.env.GAMES_ID_INDEX
     ) {}
 
-    //retrieve all the todos for a given user id
+    //retrieve all the games for a given user id
     async getUserGames(userId) {
 
         const result = await this.docClient.query({
-            TableName: this.todosTable,
-            IndexName: this.todosIdIndex,
+            TableName: this.gamesTable,
+            IndexName: this.gamesIdIndex,
             KeyConditionExpression: 'userId = :userId',
             ExpressionAttributeValues: {
                 ':userId': userId
@@ -32,7 +32,7 @@ export default class AppTodos {
     async getUserSpecificGame(userId, gameId) {
 
         const result = await this.docClient.get({
-            TableName: this.todosTable,
+            TableName: this.gamesTable,
             Key: {
                 gameId,
                 userId
@@ -46,7 +46,7 @@ export default class AppTodos {
     async deleteItem (userId, gameId) {
 
         await this.docClient.delete({
-            TableName: this.todosTable,
+            TableName: this.gamesTable,
             Key: {
                 gameId,
                 userId
@@ -58,25 +58,25 @@ export default class AppTodos {
     async createGame(item) {
 
         await this.docClient.put({
-            TableName: this.todosTable,
+            TableName: this.gamesTable,
             Item: item
         }).promise();
     }
 
     //update a given item that belongs to a given user
-    async updateGame(userId, gameId, updatedTodo) {
+    async updateGame(userId, gameId, updatedGame) {
 
         await this.docClient.update({
-            TableName: this.todosTable,
+            TableName: this.gamesTable,
             Key: {
                 gameId,
                 userId
             },
             UpdateExpression: 'set #name = :n, #dueDate = :due, #done = :d',
             ExpressionAttributeValues: {
-                ':n': updatedTodo.name,
-                ':due': updatedTodo.dueDate,
-                ':d': updatedTodo.done
+                ':n': updatedGame.name,
+                ':due': updatedGame.dueDate,
+                ':d': updatedGame.done
             },
             ExpressionAttributeNames: {
                 '#name': 'name',
@@ -90,7 +90,7 @@ export default class AppTodos {
     async updateImageURL(userId, gameId, attachmentUrl){
 
         await this.docClient.update({
-            TableName: this.todosTable,
+            TableName: this.gamesTable,
             Key: {
                 gameId,
                 userId

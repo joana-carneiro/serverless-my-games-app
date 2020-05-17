@@ -3,13 +3,13 @@ import 'source-map-support/register'
 import { getUserId } from "../lambda/utils";
 import * as uuid from 'uuid'
 import { CreateGameRequest } from '../requests/CreateGameRequest'
-import AppTodos from "../dataLayer/appTodos";
+import AppGames from "../dataLayer/appGames";
 import {UpdateGameRequest} from "../requests/UpdateGameRequest";
 import * as AWS from "aws-sdk";
 import * as AWSXRay from 'aws-xray-sdk';
 
 const XAWS = AWSXRay.captureAWS(AWS);
-const applicationData = new AppTodos();
+const applicationData = new AppGames();
 
 const s3 = new XAWS.S3({
     signatureVersion: 'v4'
@@ -32,7 +32,7 @@ export async function createGame(event: APIGatewayProxyEvent) {
 
     const itemId = uuid.v4()
 
-    const newTodo: CreateGameRequest = JSON.parse(event.body)
+    const newGame: CreateGameRequest = JSON.parse(event.body)
     const userId = getUserId(event)
 
     const item = {
@@ -40,7 +40,7 @@ export async function createGame(event: APIGatewayProxyEvent) {
         userId: userId,
         createdAt: new Date(Date.now()).toISOString(),
         done: false,
-        ...newTodo
+        ...newGame
     }
 
     await applicationData.createGame(item)
@@ -71,9 +71,9 @@ export async function updateGame(event: APIGatewayProxyEvent) {
 
     const gameId = event.pathParameters.gameId
     const userId = getUserId(event)
-    const updatedTodo: UpdateGameRequest = JSON.parse(event.body)
+    const updatedGame: UpdateGameRequest = JSON.parse(event.body)
 
-    await applicationData.updateGame(userId, gameId, updatedTodo)
+    await applicationData.updateGame(userId, gameId, updatedGame)
 
 
 }

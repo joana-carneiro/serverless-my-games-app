@@ -2,7 +2,7 @@ import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 
 import {createLogger} from "../../utils/logger";
-import {uploadImage} from "../../businessLogic/manageTodos"
+import {uploadImage} from "../../businessLogic/manageGames"
 
 
 const logger = createLogger('updateImageURL')
