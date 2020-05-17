@@ -4,7 +4,7 @@ import {createLogger} from "../../utils/logger"
 import {getTodo} from "../../businessLogic/manageTodos"
 
 
-const logger = createLogger('getToDos')
+const logger = createLogger('getGames')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 

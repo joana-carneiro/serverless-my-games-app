@@ -9,8 +9,8 @@ export default class AppTodos {
 
     constructor(
         private readonly docClient : DocumentClient = new XAWS.DynamoDB.DocumentClient(),
-        private readonly todosTable = process.env.TODOS_TABLE,
-        private readonly todosIdIndex = process.env.TODOS_ID_INDEX
+        private readonly todosTable = process.env.GAMES_TABLE,
+        private readonly todosIdIndex = process.env.GAMES_ID_INDEX
     ) {}
 
     //retrieve all the todos for a given user id
@@ -29,12 +29,12 @@ export default class AppTodos {
     }
 
     //return a spefic item with a given id for a specific user
-    async getUserSpecificTodo(userId, todoId) {
+    async getUserSpecificTodo(userId, gameId) {
 
         const result = await this.docClient.get({
             TableName: this.todosTable,
             Key: {
-                todoId,
+                gameId,
                 userId
             }
         }).promise();
@@ -43,12 +43,12 @@ export default class AppTodos {
 
     }
 
-    async deleteItem (userId, todoId) {
+    async deleteItem (userId, gameId) {
 
         await this.docClient.delete({
             TableName: this.todosTable,
             Key: {
-                todoId,
+                gameId,
                 userId
             }
         }).promise();
@@ -64,12 +64,12 @@ export default class AppTodos {
     }
 
     //update a given item that belongs to a given user
-    async updateTodo(userId,todoId,updatedTodo) {
+    async updateTodo(userId,gameId,updatedTodo) {
 
         await this.docClient.update({
             TableName: this.todosTable,
             Key: {
-                todoId,
+                gameId,
                 userId
             },
             UpdateExpression: 'set #name = :n, #dueDate = :due, #done = :d',
@@ -87,12 +87,12 @@ export default class AppTodos {
     }
 
     //update image URL for a given item
-    async updateImageURL(userId, todoId, attachmentUrl){
+    async updateImageURL(userId, gameId, attachmentUrl){
 
         await this.docClient.update({
             TableName: this.todosTable,
             Key: {
-                todoId,
+                gameId,
                 userId
             },
             UpdateExpression: 'set attachmentUrl = :a',

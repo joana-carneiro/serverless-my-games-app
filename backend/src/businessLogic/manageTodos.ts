@@ -36,7 +36,7 @@ export async function createTodo(event: APIGatewayProxyEvent) {
     const userId = getUserId(event)
 
     const item = {
-        todoId: itemId,
+        gameId: itemId,
         userId: userId,
         createdAt: new Date(Date.now()).toISOString(),
         done: false,
@@ -52,28 +52,28 @@ export async function createTodo(event: APIGatewayProxyEvent) {
 //delete a specific item
 export async function deleteTodo(event: APIGatewayProxyEvent) {
 
-    const todoId = event.pathParameters.todoId
+    const gameId = event.pathParameters.gameId
     const userId = getUserId(event)
 
-    const toBeDeleted = await applicationData.getUserSpecificTodo(userId, todoId)
+    const toBeDeleted = await applicationData.getUserSpecificTodo(userId, gameId)
 
     if(toBeDeleted.size <=0) {
         throw  new Error("Invalid Item");
     }
 
 
-    await applicationData.deleteItem(userId, todoId)
+    await applicationData.deleteItem(userId, gameId)
 
 }
 
 //update a given item that belong to a specific user
 export async function updateTodo(event: APIGatewayProxyEvent) {
 
-    const todoId = event.pathParameters.todoId
+    const gameId = event.pathParameters.gameId
     const userId = getUserId(event)
     const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
 
-    await applicationData.updateTodo(userId, todoId, updatedTodo)
+    await applicationData.updateTodo(userId, gameId, updatedTodo)
 
 
 }
@@ -81,18 +81,18 @@ export async function updateTodo(event: APIGatewayProxyEvent) {
 //upload an image into an item
 export async function uploadImage(event: APIGatewayProxyEvent) {
 
-    const todoId = event.pathParameters.todoId
+    const gameId = event.pathParameters.gameId
     const userId = getUserId(event)
 
     const createSignedUrlRequest = {
         Bucket: bucketName,
-        Key: todoId,
+        Key: gameId,
         Expires: urlExpiration
     }
 
-    const attachmentUrl = `https://${bucketName}.s3.amazonaws.com/${todoId}`
+    const attachmentUrl = `https://${bucketName}.s3.amazonaws.com/${gameId}`
 
-    await applicationData.updateImageURL(userId, todoId, attachmentUrl)
+    await applicationData.updateImageURL(userId, gameId, attachmentUrl)
 
     return s3.getSignedUrl('putObject', createSignedUrlRequest);
 
