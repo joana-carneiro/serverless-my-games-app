@@ -3,9 +3,11 @@ service:
 
 plugins:
   - serverless-webpack
-  - serverless-iam-roles-per-function
   - serverless-reqvalidator-plugin
   - serverless-aws-documentation
+  - serverless-plugin-canary-deployments
+  - serverless-plugin-tracing
+
 
 provider:
   name: aws
@@ -14,11 +16,26 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-2'}
 
+  tracing: true
+
   environment:
     GAMES_TABLE: board-games-${self:provider.stage}
     GAMES_ID_INDEX: UserIdIndex
     ATTACHMENTS_S3_BUCKET: serverless-game-attachments-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - codedeploy:*
+      Resource:
+        - '*'
+    - Effect: "Allow" # xray permissions (required)
+      Action:
+        - "xray:PutTraceSegments"
+        - "xray:PutTelemetryRecords"
+      Resource:
+        - "*"
 
 custom:
   topicName: games-images-topic-${self:provider.stage}
@@ -28,6 +45,8 @@ custom:
         version: v1.0.0
         title: Serverless Games API
         description: Serverless application for games list
+
+
 
 functions:
 
@@ -42,6 +61,9 @@ functions:
           path: games
           authorizer: Auth
           cors: true
+    deploymentSettings:
+      type: Linear10PercentEvery1Minute
+      alias: Live
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -56,6 +78,9 @@ functions:
           path: games
           authorizer: Auth
           cors: true
+    deploymentSettings:
+      type: Linear10PercentEvery1Minute
+      alias: Live
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -70,6 +95,9 @@ functions:
           path: games/{gameId}
           authorizer: Auth
           cors: true
+    deploymentSettings:
+      type: Linear10PercentEvery1Minute
+      alias: Live
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -85,6 +113,9 @@ functions:
           path: games/{gameId}
           authorizer: Auth
           cors: true
+    deploymentSettings:
+      type: Linear10PercentEvery1Minute
+      alias: Live
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -101,6 +132,9 @@ functions:
           path: games/{gameId}/attachment
           authorizer: Auth
           cors: true
+    deploymentSettings:
+      type: Linear10PercentEvery1Minute
+      alias: Live
     iamRoleStatements:
       - Effect: Allow
         Action:
