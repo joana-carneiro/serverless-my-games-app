@@ -54,8 +54,8 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
 
   handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
-    if (!files) return
 
+    if (!files) return
     this.setState({
       newGameImage: files[0]
     })
@@ -73,18 +73,21 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
   onGameCreate = async (event: React.SyntheticEvent) => {
     try {
 
+      console.log("onGameCreate")
+
       const newGame = await createGame(this.props.auth.getIdToken(), {
         name: this.state.newGameName,
         desc: this.state.newGameDesc
       })
 
-      if(newGame)
+      if(newGame && this.state.newGameImage)
       {
         this.setUploadState(UploadState.FetchingPresignedUrl)
         const uploadUrl = await getUploadUrl(this.props.auth.getIdToken(), newGame.gameId)
 
         this.setUploadState(UploadState.UploadingFile)
         await uploadFile(uploadUrl, this.state.newGameImage)
+
       }
 
       this.setState({
