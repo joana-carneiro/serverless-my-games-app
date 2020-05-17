@@ -9,7 +9,7 @@ enum UploadState {
   UploadingFile,
 }
 
-interface EditTodoProps {
+interface EditGameProps {
   match: {
     params: {
       gameId: string
@@ -18,16 +18,16 @@ interface EditTodoProps {
   auth: Auth
 }
 
-interface EditTodoState {
+interface EditGameState {
   file: any
   uploadState: UploadState
 }
 
 export class EditGame extends React.PureComponent<
-  EditTodoProps,
-  EditTodoState
+  EditGameProps,
+  EditGameState
 > {
-  state: EditTodoState = {
+  state: EditGameState = {
     file: undefined,
     uploadState: UploadState.NoUpload
   }

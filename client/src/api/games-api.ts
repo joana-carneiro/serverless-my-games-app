@@ -19,9 +19,9 @@ export async function getGames(idToken: string): Promise<Game[]> {
 
 export async function createGame(
   idToken: string,
-  newTodo: CreateGameRequest
+  newGame: CreateGameRequest
 ): Promise<Game> {
-  const response = await Axios.post(`${apiEndpoint}/games`,  JSON.stringify(newTodo), {
+  const response = await Axios.post(`${apiEndpoint}/games`,  JSON.stringify(newGame), {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
@@ -33,9 +33,9 @@ export async function createGame(
 export async function patchGame(
   idToken: string,
   gameId: string,
-  updatedTodo: UpdateGameRequest
+  updatedGame: UpdateGameRequest
 ): Promise<void> {
-  await Axios.patch(`${apiEndpoint}/games/${gameId}`, JSON.stringify(updatedTodo), {
+  await Axios.patch(`${apiEndpoint}/games/${gameId}`, JSON.stringify(updatedGame), {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`

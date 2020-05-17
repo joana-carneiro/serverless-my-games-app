@@ -150,7 +150,7 @@ export class Games extends React.PureComponent<GamesProps, GamesState> {
     return (
       <Grid.Row>
         <Loader indeterminate active inline="centered">
-          Loading TODOs
+          Loading Games
         </Loader>
       </Grid.Row>
     )
