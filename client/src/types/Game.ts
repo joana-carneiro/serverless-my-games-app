@@ -3,7 +3,5 @@ export interface Game {
   createdAt: string
   name: string
   desc: string
-  dueDate: string
-  done: boolean
   attachmentUrl?: string
 }

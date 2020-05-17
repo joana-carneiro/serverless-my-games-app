@@ -105,15 +105,6 @@ export class EditGame extends React.PureComponent<
               onChange={this.handleDescriptionChange}
             />
           </Form.Field>
-          {/* <Form.Field>
-            <label>File</label>
-            <input
-              type="file"
-              accept="image/*"
-              placeholder="Image to upload"
-              onChange={this.handleFileChange}
-            />
-          </Form.Field> */}
 
           {this.renderButton()}
         </Form>
